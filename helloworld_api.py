@@ -52,3 +52,4 @@ class HelloWorldApi(remote.Service):
 			raise endpoints.NotFoundException('Greeting %s not found.' %
 				(request.id))
 
+APPLICATION = endpoints.api_server([HelloWorldApi])
