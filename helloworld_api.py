@@ -32,6 +32,17 @@ STORED_GREETINGS = GreetingCollection(items=[
 class HelloWorldApi(remote.Service):
 	"""Helloworld API v1."""
 
+	MULTIPLY_METHOD_RESOURCE = endpoints.ResourceContainer(
+		Greeting,
+		times=messages.IntegerField(2, variant=messages.Variant.INT32,
+			required=True))
+
+	@endpoints.method(MULTIPLY_METHOD_RESOURCE, Greeting,
+		path='hellogreeting/{times}', http_method='POST',
+		name='greetings.multiply')
+	def greetings_multiply(self, request):
+		return Greeting(message=request.message * request.times)
+
 	@endpoints.method(message_types.VoidMessage, GreetingCollection,
 						path='hellogreeting', http_method='GET',
 						name='greetings.listGreeting')
