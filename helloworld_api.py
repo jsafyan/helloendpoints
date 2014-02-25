@@ -41,9 +41,7 @@ class HelloWorldApi(remote.Service):
 	"""Helloworld API v1."""
 
 	MULTIPLY_METHOD_RESOURCE = endpoints.ResourceContainer(
-		Greeting,
-		times=messages.IntegerField(2, variant=messages.Variant.INT32,
-			required=True))
+		Greeting, times=messages.IntegerField(2, variant=messages.Variant.INT32, required=True))
 
 	@endpoints.method(MULTIPLY_METHOD_RESOURCE, Greeting,
 		path='hellogreeting/{times}', http_method='POST',
