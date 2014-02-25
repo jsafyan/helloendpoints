@@ -9,10 +9,14 @@ from protorpc import messages
 from protorpc import message_types
 from protorpc import remote
 
-"""Used by ProtoRPC when creating names for ProtoRPC messages. Will show up 
-as a prefix to message class names in the discovery doc and client libs.
-"""
 
+WEB_CLIENT_ID = 'replace with web client app id'
+ANDROID_CLIENT_ID = 'replace with Android client id'
+IOS_CLIENT_ID = 'replace with iOS client id'
+ANDROID_AUDIENCE = WEB_CLIENT_ID
+
+#Used by ProtoRPC when creating names for ProtoRPC messages. Will show up 
+#as a prefix to message class names in the discovery doc and client libs.
 package = 'Hello'
 
 class Greeting(messages.Message):
@@ -28,7 +32,11 @@ STORED_GREETINGS = GreetingCollection(items=[
 	Greeting(message='goodbye, world!')
 ])
 
-@endpoints.api(name='helloworld', version='v1')
+@endpoints.api(name='helloworld', version='v1',
+	allowed_client_ids=[WEB_CLIENT_ID, ANDROID_CLIENT_ID,
+		IOS_CLIENT_ID, endpoints.API_EXPLORER_CLIENT_ID],
+	audiences=[ANDROID_AUDIENCE], 
+    scopes=[endpoints.EMAIL_SCOPE])
 class HelloWorldApi(remote.Service):
 	"""Helloworld API v1."""
 
@@ -62,5 +70,13 @@ class HelloWorldApi(remote.Service):
 		except (IndexError, TypeError):
 			raise endpoints.NotFoundException('Greeting %s not found.' %
 				(request.id))
+
+	@endpoints.method(message_types.VoidMessage, Greeting,
+		path='hellogreeting/authed', http_method='POST',
+		name='greetings.authed')
+	def greeting_authed(self, request):
+		current_user = endpoints.get_current_user()
+		email = (current_user.email() if current_user is not None else 'Anonymous')
+		return Greeting(message='hello %s' % (email))
 
 APPLICATION = endpoints.api_server([HelloWorldApi])
